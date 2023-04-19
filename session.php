@@ -42,7 +42,7 @@ if (isset($_SESSION['user_id'])) {
       $stmt->execute([$username]);
       $user_id = $stmt->fetchColumn();
       if ($user_id) {
-        $error = 'Username already exists';
+        echo '<div class="alert alert-danger">Username already taken</div>';
       } else {
         $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
         $stmt->execute([$username, $password]);
