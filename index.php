@@ -45,6 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
 $stmt = $pdo->prepare("SELECT messages.id, messages.user_id, messages.message, users.username FROM messages INNER JOIN users ON messages.user_id = users.id ORDER BY messages.id DESC");
 $stmt->execute();
 $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Loop through messages and modify message field to include links
+foreach ($messages as &$message) {
+  $message['message'] = preg_replace('/\b(https?:\/\/\S+)/i', '<a target="_blank" href="$1">$1</a>', $message['message']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -61,13 +66,13 @@ $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="container-fluid mt-1 mb-5">
       <?php foreach ($messages as $message): ?>
         <p><strong><?php echo htmlspecialchars($message['username']); ?>:</strong></p>
-        <p><?php echo $message['message']; ?></p>  
+        <p style="word-break: break-word;"><?php echo $message['message']; ?></p>
         <div>
           <?php if ($message['user_id'] == $_SESSION['user_id']): ?>
             <form method="post" style="display: inline;">
               <div class="dropdown">
-                <button class="btn btn-secondary btn-sm position-b float-end" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="bi bi-three-dots-vertical"></i>
+                <button class="btn btn-secondary btn-sm position-b " type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-caret-down-fill"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li><a href="edit_message.php?id=<?php echo $message['id']; ?>" class="dropdown-item mb-2"><i class="bi bi-pencil-fill"></i> edit message</a></li>
@@ -91,11 +96,6 @@ $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
       </form>
     </nav> 
-    <style>
-      .position-b {
-        margin-top: -80px;
-      }
-    </style>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD" crossorigin="anonymous"></script>
   </body>
