@@ -59,7 +59,7 @@ if (isset($_GET['id'])) {
     <div class="container">
       <form method="post">
         <div class="form-group">
-          <textarea class="form-control" id="message" name="message" rows="12"><?php echo htmlspecialchars($message['message']); ?></textarea>
+          <textarea class="form-control" id="message" oninput="stripHtmlTags(this)" name="message" rows="12"><?php echo strip_tags($message['message']); ?></textarea>
         </div>
         <input type="hidden" name="id" value="<?php echo $message['id']; ?>">
         <button type="submit" class="btn w-100 mt-2 fw-bold btn-primary">Save</button>

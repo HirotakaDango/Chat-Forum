@@ -58,7 +58,7 @@ $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
   </head>
   <body>
     <?php include('header.php'); ?>
-    <div class="container-fluid mt-1">
+    <div class="container-fluid mt-1 mb-5">
       <?php foreach ($messages as $message): ?>
         <p><strong><?php echo htmlspecialchars($message['username']); ?>:</strong></p>
         <p><?php echo $message['message']; ?></p>  
@@ -80,17 +80,17 @@ $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <hr>
       <?php endforeach; ?>
-      <nav class="navbar fixed-bottom" style="margin-bottom: -15px;">
-        <form class="form-control border-0 container" action="" method="POST">
-          <div class="input-group mb-2 mt-2">
-            <textarea type="text" class="form-control rounded-3" style="height: 40px; max-height: 130px;" name="message" placeholder="Type something..." aria-label="Type a message..." aria-describedby="basic-addon2" 
-              onkeydown="if(event.keyCode == 13) { this.style.height = (parseInt(this.style.height) + 10) + 'px'; return true; }"
-              onkeyup="this.style.height = '40px'; var newHeight = (this.scrollHeight + 10 * (this.value.split(/\r?\n/).length - 1)) + 'px'; if (parseInt(newHeight) > 130) { this.style.height = '130px'; } else { this.style.height = newHeight; }"></textarea>
-            <button class="btn btn-primary ms-1 rounded-3" type="submit" style="width: 40px; height: 40px;"><i class="bi bi-send-fill"></i></button>
-          </div>
-        </form>
-      </nav>
     </div>
+    <nav class="navbar fixed-bottom" style="margin-bottom: -15px;">
+      <form class="form-control border-0 container" action="" method="POST">
+        <div class="input-group mb-2 mt-1">
+          <textarea type="text" class="form-control rounded-3" style="height: 40px; max-height: 130px;" name="message" placeholder="Type something..." aria-label="Type a message..." aria-describedby="basic-addon2" 
+            onkeydown="if(event.keyCode == 13) { this.style.height = (parseInt(this.style.height) + 10) + 'px'; return true; }"
+            onkeyup="this.style.height = '40px'; var newHeight = (this.scrollHeight + 10 * (this.value.split(/\r?\n/).length - 1)) + 'px'; if (parseInt(newHeight) > 130) { this.style.height = '130px'; } else { this.style.height = newHeight; }"></textarea>
+          <button class="btn btn-primary ms-1 rounded-3" type="submit" style="width: 40px; height: 40px;"><i class="bi bi-send-fill"></i></button>
+        </div>
+      </form>
+    </nav> 
     <style>
       .position-b {
         margin-top: -80px;
