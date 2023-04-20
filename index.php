@@ -65,7 +65,7 @@ $modified_messages = array();
 // Loop through messages and modify message field to include links
 foreach ($messages as $message) {
   $modified_message = $message;
-  $modified_message['message'] = preg_replace('/\b(https?:\/\/\S+)/i', '<a target="_blank" href="$1">$1</a>', $message['message']);
+  $modified_message['message'] = preg_replace('/\b(https?:\/\/\S+)/i', '<a class="text-decoration-none" target="_blank" href="$1">$1</a>', $message['message']);
   $modified_messages[] = $modified_message;
 }
 ?>
@@ -83,7 +83,7 @@ foreach ($messages as $message) {
     <?php include('header.php'); ?>
     <div class="container-fluid mt-1 mb-5">
       <?php foreach ($modified_messages as $message): ?>
-        <p><strong><?php echo htmlspecialchars($message['username']); ?>:</strong></p>
+        <p class="text-white fw-semibold"><i class="bi bi-person-circle"></i> <?php echo htmlspecialchars($message['username']); ?>:</p>
         <div style="word-break: break-word;" data-lazyload><p style="word-break: break-word;"><?php echo $message['message']; ?></p></div>
         <div>
           <?php if ($message['user_id'] == $_SESSION['user_id']): ?>
