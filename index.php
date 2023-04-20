@@ -41,8 +41,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
   exit();
 } 
 
+// Pagination
+$per_page = 300;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $per_page;
+
+// Get total number of messages
+$count_stmt = $pdo->prepare("SELECT COUNT(*) FROM messages");
+$count_stmt->execute();
+$total_rows = $count_stmt->fetchColumn();
+$total_pages = ceil($total_rows / $per_page);
+
 // Display chat messages
-$stmt = $pdo->prepare("SELECT messages.id, messages.user_id, messages.message, users.username FROM messages INNER JOIN users ON messages.user_id = users.id ORDER BY messages.id DESC");
+$stmt = $pdo->prepare("SELECT messages.id, messages.user_id, messages.message, users.username FROM messages INNER JOIN users ON messages.user_id = users.id ORDER BY messages.id DESC LIMIT :per_page OFFSET :offset");
+$stmt->bindValue(':per_page', $per_page, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -90,6 +103,14 @@ foreach ($messages as $message) {
         </div>
         <hr>
       <?php endforeach; ?>
+    </div>
+    <div class="pagination justify-content-center" style="margin-bottom: 80px;">
+      <?php if ($page > 1): ?>
+        <a class="btn btn-sm fw-bold btn-primary me-1" href="?page=<?php echo $page - 1 ?>">Prev</a>
+      <?php endif ?>
+      <?php if ($page < $total_pages): ?>
+        <a class="btn btn-sm fw-bold btn-primary ms-1" href="?page=<?php echo $page + 1 ?>">Next</a>
+      <?php endif ?>
     </div>
     <nav class="navbar fixed-bottom" style="margin-bottom: -15px;">
       <form class="form-control border-0 container" action="" method="POST">
