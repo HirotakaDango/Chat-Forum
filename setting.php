@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <header class="d-flex justify-content-center py-3">
             <ul class="nav nav-pills">
               <li class="nav-item"><button type="submit" class="btn btn-secondary me-1 fw-bold" name="submit">Save</button></li>
-              <li class="nav-item d-md-none d-lg-none"><a href="setting.php" class="btn btn-secondary ms-1 fw-bold">Back</a></li>
+              <li class="nav-item"><a href="index.php" class="btn btn-secondary ms-1 fw-bold">Back</a></li>
             </ul>
           </header>
         </div> 
