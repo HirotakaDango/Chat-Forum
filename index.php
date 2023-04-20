@@ -46,9 +46,14 @@ $stmt = $pdo->prepare("SELECT messages.id, messages.user_id, messages.message, u
 $stmt->execute();
 $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Create a new array for modified messages
+$modified_messages = array();
+
 // Loop through messages and modify message field to include links
-foreach ($messages as &$message) {
-  $message['message'] = preg_replace('/\b(https?:\/\/\S+)/i', '<a target="_blank" href="$1">$1</a>', $message['message']);
+foreach ($messages as $message) {
+  $modified_message = $message;
+  $modified_message['message'] = preg_replace('/\b(https?:\/\/\S+)/i', '<a target="_blank" href="$1">$1</a>', $message['message']);
+  $modified_messages[] = $modified_message;
 }
 ?>
 
@@ -64,14 +69,14 @@ foreach ($messages as &$message) {
   <body>
     <?php include('header.php'); ?>
     <div class="container-fluid mt-1 mb-5">
-      <?php foreach ($messages as $message): ?>
+      <?php foreach ($modified_messages as $message): ?>
         <p><strong><?php echo htmlspecialchars($message['username']); ?>:</strong></p>
-        <p style="word-break: break-word;"><?php echo $message['message']; ?></p>
+        <div style="word-break: break-word;" data-lazyload><p style="word-break: break-word;"><?php echo $message['message']; ?></p></div>
         <div>
           <?php if ($message['user_id'] == $_SESSION['user_id']): ?>
             <form method="post" style="display: inline;">
               <div class="dropdown">
-                <button class="btn btn-secondary btn-sm position-b " type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-secondary btn-sm mt-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="bi bi-caret-down-fill"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -96,6 +101,23 @@ foreach ($messages as &$message) {
         </div>
       </form>
     </nav> 
+    <script>
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            // Load the content dynamically here
+            entry.target.innerHTML = entry.target.querySelector('p').innerHTML;
+            // Unobserve the target to prevent further callbacks
+            observer.unobserve(entry.target);
+          }
+        });
+      });
+
+      document.querySelectorAll('[data-lazyload]').forEach(function(target) {
+        observer.observe(target);
+      });
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD" crossorigin="anonymous"></script>
   </body>
