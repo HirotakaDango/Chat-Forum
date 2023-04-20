@@ -83,7 +83,7 @@ foreach ($messages as $message) {
     <?php include('header.php'); ?>
     <div class="container-fluid mt-1 mb-5">
       <?php foreach ($modified_messages as $message): ?>
-        <p class="text-white fw-semibold"><i class="bi bi-person-circle"></i> <?php echo htmlspecialchars($message['username']); ?>:</p>
+        <p class="text-white fw-semibold"><i class="bi bi-person-circle"></i> <?php echo htmlspecialchars($message['username']); ?></p>
         <div style="word-break: break-word;" data-lazyload><p style="word-break: break-word;"><?php echo $message['message']; ?></p></div>
         <div>
           <?php if ($message['user_id'] == $_SESSION['user_id']): ?>
