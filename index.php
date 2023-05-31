@@ -130,8 +130,8 @@ $messages_to_display = array_slice($messages, $offset, $per_page);
         <a class="btn btn-sm fw-bold btn-primary ms-1" href="?page=<?php echo $page + 1 ?>">Next</a>
       <?php endif ?>
     </div>
-    <nav class="navbar fixed-bottom bg-dark container" style="margin-bottom: -15px;">
-      <form id="message-form" method="post" class="w-100 mb-3">
+    <nav class="navbar fixed-bottom bg-dark container-fluid" style="margin-bottom: -15px;">
+      <form id="message-form" method="post" class="container-fluid w-100 mb-3">
         <div class="input-group">
           <textarea id="message-input" name="message" class="form-control rounded-3 rounded-end-0" style="height: 40px; max-height: 200px;" placeholder="Type your message..." aria-label="Type a message..." aria-describedby="basic-addon2" 
             onkeydown="if(event.keyCode == 13) { this.style.height = (parseInt(this.style.height) + 10) + 'px'; return true; }"
