@@ -54,7 +54,6 @@ function getChatMessages() {
   // Loop through messages and modify message field to include links
   foreach ($messages as $message) {
     $modified_message = $message;
-    $modified_message['message'] = preg_replace('/\b(https?:\/\/\S+)/i', '<a class="text-decoration-none" target="_blank" href="$1">$1</a>', $message['message']);
     $modified_messages[] = $modified_message;
   }
 
@@ -91,7 +90,23 @@ $messages_to_display = array_slice($messages, $offset, $per_page);
       <?php foreach ($messages_to_display as $message): ?>
         <div class="card border-0">
           <p class="text-white fw-semibold"><i class="bi bi-person-circle"></i> <?php echo htmlspecialchars($message['username']); ?></p>
-          <div style="word-break: break-word;" data-lazyload><p style="word-break: break-word;"><?php echo $message['message']; ?></p></div>
+          <div style="word-break: break-word;" data-lazyload>
+            <p style="word-break: break-word;">
+            <?php
+              $messageText = $message['message'];
+              $messageTextWithoutTags = strip_tags($messageText);
+              $pattern = '/\bhttps?:\/\/\S+/i';
+
+              $formattedText = preg_replace_callback($pattern, function ($matches) {
+                $url = htmlspecialchars($matches[0]);
+                return '<a href="' . $url . '">' . $url . '</a>';
+              }, $messageTextWithoutTags);
+
+              $formattedTextWithLineBreaks = nl2br($formattedText);
+              echo $formattedTextWithLineBreaks;
+            ?>
+            </p>
+          </div>
           <div>
             <?php if ($message['user_id'] == $_SESSION['user_id']): ?>
               <form method="post" style="display: inline;">
@@ -121,7 +136,7 @@ $messages_to_display = array_slice($messages, $offset, $per_page);
           <textarea id="message-input" name="message" class="form-control rounded-3 rounded-end-0" style="height: 40px; max-height: 200px;" placeholder="Type your message..." aria-label="Type a message..." aria-describedby="basic-addon2" 
             onkeydown="if(event.keyCode == 13) { this.style.height = (parseInt(this.style.height) + 10) + 'px'; return true; }"
             onkeyup="this.style.height = '40px'; var newHeight = (this.scrollHeight + 10 * (this.value.split(/\r?\n/).length - 1)) + 'px'; if (parseInt(newHeight) > 200) { this.style.height = '200px'; } else { this.style.height = newHeight; }"></textarea>
-          <button type="submit" class="btn btn-primary fw-bold">Send</button>
+          <button type="submit" class="btn btn-primary fw-bold">send</button>
         </div>
       </form>
     </nav> 
