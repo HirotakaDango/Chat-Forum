@@ -1,4 +1,4 @@
-    <nav class="navbar mb-2 navbar-expand bg-body-tertiary">
+    <nav class="navbar fixed-top navbar-expand bg-body-tertiary">
       <div class="container-fluid">
         <a class="navbar-brand fw-bold" href="index.php">Chat Group</a>
         <form method="post">
@@ -9,3 +9,4 @@
         </form> 
       </div>
     </nav>
+    <br><br><br>
