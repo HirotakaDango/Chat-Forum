@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete'])) {
 
 // Handle message sending
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['message']) && trim($_POST['message']) !== '') {
-  $stmt = $pdo->prepare("INSERT INTO messages (user_id, message) VALUES (?, ?)");
+  $stmt = $pdo->prepare("INSERT INTO messages (user_id, message, date) VALUES (?, ?, CURRENT_TIMESTAMP)");
   $message = nl2br(htmlspecialchars($_POST['message']));
   $stmt->execute([$_SESSION['user_id'], $message]);
   header('Location: ' . $_SERVER['PHP_SELF']);
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['logout'])) {
 // Function to fetch the chat messages
 function getChatMessages() {
   global $pdo;
-  $stmt = $pdo->prepare("SELECT messages.id, messages.user_id, messages.message, users.username FROM messages INNER JOIN users ON messages.user_id = users.id ORDER BY messages.id ASC");
+  $stmt = $pdo->prepare("SELECT messages.*, users.username FROM messages INNER JOIN users ON messages.user_id = users.id ORDER BY messages.id DESC");
   $stmt->execute();
   $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -62,16 +62,6 @@ function getChatMessages() {
 
 // Get chat messages
 $messages = getChatMessages();
-
-// Pagination
-$per_page = 300;
-$total_rows = count($messages);
-$total_pages = ceil($total_rows / $per_page);
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$offset = ($page - 1) * $per_page;
-
-// Display chat messages based on pagination
-$messages_to_display = array_slice($messages, $offset, $per_page);
 ?>
 
 <!DOCTYPE html>
@@ -87,26 +77,39 @@ $messages_to_display = array_slice($messages, $offset, $per_page);
     <?php include('header.php'); ?>
     <div class="container-fluid">
       <div id="message-container">
-        <?php foreach ($messages_to_display as $message): ?>
-          <div class="card border-0">
-            <p class="text-white fw-semibold"><i class="bi bi-person-circle"></i> <?php echo htmlspecialchars($message['username']); ?></p>
-            <div style="word-break: break-word;" data-lazyload>
-              <p style="word-break: break-word;">
-                <?php
-                  $messageText = $message['message'];
-                  $messageTextWithoutTags = strip_tags($messageText);
-                  $pattern = '/\bhttps?:\/\/\S+/i';
+        <?php foreach ($messages as $message): ?>
+          <div class="card border-0 fw-medium">
+            <p class="text-white"><i class="bi bi-person-circle"></i> <?php echo htmlspecialchars($message['username']); ?></p>
+            <i class="small">sent <?php echo $message['date']; ?></i>
+            <p class="small" style="white-space: break-spaces; overflow: hidden;">
+              <?php
+                $novelText = $message['message'];
 
-                  $formattedText = preg_replace_callback($pattern, function ($matches) {
-                    $url = htmlspecialchars($matches[0]);
-                    return '<a href="' . $url . '">' . $url . '</a>';
-                  }, $messageTextWithoutTags);
+                if (!empty($novelText)) {
+                  $paragraphs = explode("\n", $novelText);
 
-                  $formattedTextWithLineBreaks = nl2br($formattedText);
-                  echo $formattedTextWithLineBreaks;
-                ?>
-              </p>
-            </div>
+                  foreach ($paragraphs as $index => $paragraph) {
+                    $messageTextWithoutTags = strip_tags($paragraph);
+                    $pattern = '/\bhttps?:\/\/\S+/i';
+
+                    $formattedText = preg_replace_callback($pattern, function ($matches) {
+                      $url = htmlspecialchars($matches[0]);
+
+                      // Check if the URL ends with .png, .jpg, or .webp
+                      if (preg_match('/\.(png|jpg|jpeg|webp)$/i', $url)) {
+                        return '<img class="img-fluid rounded" loading="lazy" src="' . $url . '" alt="Image">';
+                      } else {
+                        return '<a href="' . $url . '">' . $url . '</a>';
+                      }
+                    }, $messageTextWithoutTags);
+
+                    echo "<p class='small' style=\"white-space: break-spaces; overflow: hidden;\">$formattedText</p>";
+                  }
+                } else {
+                  echo "Sorry, no text...";
+                }
+              ?>
+            </p>
             <div>
               <?php if ($message['user_id'] == $_SESSION['user_id']): ?>
                 <form method="post" style="display: inline;">
@@ -121,14 +124,6 @@ $messages_to_display = array_slice($messages, $offset, $per_page);
             <hr>
           </div>
         <?php endforeach; ?>
-      </div>
-      <div class="pagination justify-content-center" style="margin-bottom: 80px;">
-        <?php if ($page > 1): ?>
-          <a class="btn btn-sm fw-bold btn-primary me-1" href="?page=<?php echo $page - 1 ?>">Prev</a>
-        <?php endif ?>
-        <?php if ($page < $total_pages): ?>
-          <a class="btn btn-sm fw-bold btn-primary ms-1" href="?page=<?php echo $page + 1 ?>">Next</a>
-        <?php endif ?>
       </div>
       <nav class="navbar fixed-bottom bg-dark container-fluid" style="margin-bottom: -15px;">
         <form id="message-form" method="post" class="container-fluid w-100 mb-3">
@@ -153,7 +148,7 @@ $messages_to_display = array_slice($messages, $offset, $per_page);
             dataType: 'html',
             success: function(response) {
               $('#message-container').html($(response).find('#message-container').html());
-              scrollToBottom();
+              scrollToTop(); // Change this line to scroll to top
             }
           });
         }
@@ -180,22 +175,22 @@ $messages_to_display = array_slice($messages, $offset, $per_page);
           }
         });
 
-        // Function to scroll to the bottom of the chat container
-        function scrollToBottom() {
+        // Function to scroll to the top of the chat container
+        function scrollToTop() {
           var chatContainer = document.getElementById('message-container');
-          chatContainer.scrollTop = chatContainer.scrollHeight;
+          chatContainer.scrollTop = 0; // Change this line to scroll to top
         }
 
         // Update chat messages periodically
         setInterval(updateChatMessages, 1000);
 
-        // Scroll to the bottom when the page and chat messages are loaded
+        // Scroll to the top when the page and chat messages are loaded
         $(window).on('load', function() {
-          scrollToBottom();
+          scrollToTop(); // Change this line to scroll to top
         });
 
-        // Scroll to the bottom when the page is visited or refreshed
-        $(window).scrollTop($(document).height());
+        // Scroll to the top when the page is visited or refreshed
+        $(window).scrollTop(0); // Change this line to scroll to top
       });
     </script>
   </body>
